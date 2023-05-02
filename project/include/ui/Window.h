@@ -11,6 +11,7 @@
 #include <math/Rectangle.h>
 #include <system/CFFI.h>
 #include <system/DisplayMode.h>
+#include <ui/Menu.h>
 #include <stdint.h>
 
 
@@ -64,10 +65,12 @@ namespace lime {
 			virtual void SetTextInputRect (Rectangle *rect) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
 			virtual bool SetVisible (bool visible) = 0;
+			virtual void SetWindowMenu (Menu* menu) = 0;
 			virtual void WarpMouse (int x, int y) = 0;
 
 			Application* currentApplication;
 			int flags;
+			Menu* currentMenu;
 
 
 	};

@@ -30,6 +30,7 @@ import lime.system.System;
 import lime.system.Clipboard;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
+import lime.ui.Menu;
 import lime.ui.MouseCursor;
 import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
@@ -965,6 +966,8 @@ class HTML5Window
 	}
 
 	public function resize(width:Int, height:Int):Void {}
+
+	public function setMenu(menu:Menu):Void {}
 
 	public function setMinSize(width:Int, height:Int):Void {}
 

@@ -3,6 +3,7 @@
 
 
 #include <system/CFFI.h>
+#include <ui/Menu.h>
 
 
 namespace lime {
@@ -22,6 +23,7 @@ namespace lime {
 			virtual int Quit () = 0;
 			virtual void SetFrameRate (double frameRate) = 0;
 			virtual bool Update () = 0;
+			virtual void SetMenu (Menu* menu) = 0;
 
 
 	};

@@ -1,5 +1,6 @@
 package lime.app;
 
+import lime.ui.Menu;
 import lime.graphics.RenderContext;
 import lime.system.System;
 import lime.ui.Gamepad;
@@ -70,11 +71,17 @@ class Application extends Module
 	**/
 	public var windows(get, null):Array<Window>;
 
+	/**
+		The Menu associated with this Application
+	**/
+	public var menu(get, set):Menu;
+
 	@:noCompletion private var __backend:ApplicationBackend;
 	@:noCompletion private var __preloader:Preloader;
 	@:noCompletion private var __window:Window;
 	@:noCompletion private var __windowByID:Map<Int, Window>;
 	@:noCompletion private var __windows:Array<Window>;
+	@:noCompletion private var __menu:Menu;
 
 	private static function __init__()
 	{
@@ -641,6 +648,21 @@ class Application extends Module
 	@:noCompletion private inline function get_windows():Array<Window>
 	{
 		return __windows;
+	}
+
+	@:noCompletion private inline function get_menu():Menu
+	{
+		// some backends may add new default items after startup,
+		// so this ensures that they aren't missing from our model
+		__backend.refreshMenu(__menu);
+		return __menu;
+	}
+
+	@:noCompletion private inline function set_menu(value:Menu):Menu
+	{
+		__menu = value;
+		__backend.setMenu(value);
+		return __menu;
 	}
 }
 

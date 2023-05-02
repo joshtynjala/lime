@@ -4,6 +4,7 @@ import flash.ui.MultitouchInputMode;
 import flash.ui.Multitouch;
 import lime.app.Application;
 import lime.media.AudioManager;
+import lime.ui.Menu;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
@@ -32,6 +33,10 @@ class FlashApplication
 
 		return 0;
 	}
+
+	public function refreshMenu(menu:Menu):Void {}
+
+	public function setMenu(menu:Menu):Void {}
 
 	public function exit():Void {}
 }

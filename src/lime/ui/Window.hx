@@ -50,6 +50,7 @@ class Window
 	public var height(get, set):Int;
 	public var hidden(get, null):Bool;
 	public var id(default, null):Int;
+	public var menu(get, set):Menu;
 	public var maxHeight(get, set):Int;
 	public var maximized(get, set):Bool;
 	public var maxWidth(get, set):Int;
@@ -111,6 +112,7 @@ class Window
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __hidden:Bool;
+	@:noCompletion private var __menu:Menu;
 	@:noCompletion private var __maximized:Bool;
 	@:noCompletion private var __minimized:Bool;
 	@:noCompletion private var __resizable:Bool;
@@ -578,6 +580,18 @@ class Window
 	{
 		setMinSize(value, __maxHeight);
 		return __maxWidth;
+	}
+
+	@:noCompletion private inline function get_menu():Menu
+	{
+		return __menu;
+	}
+
+	@:noCompletion private function set_menu(value:Menu):Menu
+	{
+		__backend.setMenu(value);
+		__menu = value;
+		return __menu;
 	}
 
 	@:noCompletion private inline function get_minHeight():Int

@@ -42,6 +42,7 @@ namespace lime {
 
 		currentApplication = application;
 		this->flags = flags;
+		currentMenu = 0;
 
 		int sdlWindowFlags = 0;
 
@@ -1120,6 +1121,41 @@ namespace lime {
 		SDL_SetWindowTitle (sdlWindow, title);
 
 		return title;
+
+	}
+
+
+	void SDLWindow::SetWindowMenu (Menu* menu) {
+
+
+		#ifdef HX_WINDOWS
+
+		if (currentMenu) {
+
+			currentMenu->nativeWindow = 0;
+
+		}
+
+		currentMenu = menu;
+
+		if (currentMenu) {
+
+			SDL_SysWMinfo wmInfo;
+			SDL_VERSION(&wmInfo.version);
+			SDL_GetWindowWMInfo(sdlWindow, &wmInfo);
+			HWND hWnd = wmInfo.info.win.window;
+			currentMenu->nativeWindow = hWnd;
+
+			HMENU hMenu = currentMenu->nativeMenu;
+			SetMenu(hWnd, hMenu);
+
+		}
+
+		#else
+
+		printf("SDLWindow::SetMenu not implemented\n");
+
+		#endif
 
 	}
 

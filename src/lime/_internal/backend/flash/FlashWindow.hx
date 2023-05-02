@@ -21,6 +21,7 @@ import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Menu;
 import lime.ui.MouseButton;
 import lime.ui.MouseCursor;
 import lime.ui.MouseWheelMode;
@@ -585,6 +586,8 @@ class FlashWindow
 	public function move(x:Int, y:Int):Void {}
 
 	public function resize(width:Int, height:Int):Void {}
+
+	public function setMenu(menu:Menu):Void {}
 
 	public function setMinSize(width:Int, height:Int):Void {}
 

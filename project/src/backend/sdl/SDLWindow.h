@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <graphics/ImageBuffer.h>
 #include <ui/Cursor.h>
+#include <ui/Menu.h>
 #include <ui/Window.h>
 
 
@@ -58,6 +59,7 @@ namespace lime {
 			virtual void SetTextInputRect (Rectangle *rect);
 			virtual const char* SetTitle (const char* title);
 			virtual bool SetVisible (bool visible);
+			virtual void SetWindowMenu (Menu* menu);
 			virtual void WarpMouse (int x, int y);
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;

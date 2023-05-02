@@ -312,6 +312,9 @@
 		<file name="src/ui/Haptic.mm" if="ios" />
 		<file name="src/ui/JoystickEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
+		<file name="src/ui/Menu.cpp" unless="mac" />
+		<file name="src/ui/Menu.mm" if="mac" />
+		<file name="src/ui/MenuItemEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
 		<file name="src/ui/TextEvent.cpp" />
 		<file name="src/ui/TouchEvent.cpp" />

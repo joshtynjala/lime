@@ -13,9 +13,12 @@ import flash.Lib;
 import lime._internal.backend.flash.FlashApplication;
 import lime._internal.backend.flash.FlashWindow;
 import lime.app.Application;
+import lime.ui.Menu;
 import lime.ui.Window;
 
+@:access(lime._internal.backend.air.AIRMenu)
 @:access(lime._internal.backend.flash.FlashApplication)
+@:access(lime.ui.Menu)
 @:access(lime.ui.Window)
 class AIRWindow extends FlashWindow
 {
@@ -230,6 +233,11 @@ class AIRWindow extends FlashWindow
 			nativeWindow.width = width;
 			nativeWindow.height = height;
 		}
+	}
+
+	public override function setMenu(menu:Menu):Void
+	{
+		nativeWindow.menu = menu != null ? menu.__backend.nativeMenu : null;
 	}
 
 	public override function setMinSize(width:Int, height:Int):Void

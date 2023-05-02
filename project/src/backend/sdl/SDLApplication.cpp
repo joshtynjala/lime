@@ -2,6 +2,11 @@
 #include "SDLGamepad.h"
 #include "SDLJoystick.h"
 #include <system/System.h>
+#include <ui/MenuItemEvent.h>
+
+#ifdef HX_WINDOWS
+#include <SDL_syswm.h>
+#endif
 
 #ifdef HX_MACOS
 #include <CoreFoundation/CoreFoundation.h>
@@ -60,6 +65,9 @@ namespace lime {
 		WindowEvent windowEvent;
 
 		SDL_EventState (SDL_DROPFILE, SDL_ENABLE);
+		#ifdef HX_WINDOWS
+		SDL_EventState (SDL_SYSWMEVENT, SDL_ENABLE);
+		#endif
 		SDLJoystick::Init ();
 
 		#ifdef HX_MACOS
@@ -243,6 +251,23 @@ namespace lime {
 				RenderEvent::Dispatch (&renderEvent);
 
 				renderEvent.type = RENDER;
+				break;
+			#endif
+
+			#ifdef HX_WINDOWS
+			case SDL_SYSWMEVENT:
+
+				if (event->syswm.msg->msg.win.msg == WM_COMMAND) {
+
+					int id = event->syswm.msg->msg.win.wParam;
+
+					MenuItemEvent event;
+					event.type = MENU_ITEM_SELECT;
+					event.menuItemID = id;
+					MenuItemEvent::Dispatch(&event);
+
+				}
+
 				break;
 			#endif
 
@@ -833,6 +858,19 @@ namespace lime {
 		} else {
 
 			framePeriod = 1000.0;
+
+		}
+
+	}
+
+
+	void SDLApplication::SetMenu (Menu* newMenu) {
+
+		menu = newMenu;
+
+		if (menu) {
+
+			menu->SetAsAppMenu();
 
 		}
 

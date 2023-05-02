@@ -13,6 +13,7 @@ import lime.ui.KeyModifier;
 import lime.ui.Gamepad;
 import lime.ui.GamepadButton;
 import lime.ui.Joystick;
+import lime.ui.Menu;
 import lime.ui.Window;
 
 @:access(lime._internal.backend.html5.HTML5Window)
@@ -349,6 +350,10 @@ class HTML5Application
 	}
 
 	public function exit():Void {}
+
+	public function refreshMenu(menu:Menu):Void {}
+
+	public function setMenu(menu:Menu):Void {}
 
 	private function handleApplicationEvent(?__):Void
 	{

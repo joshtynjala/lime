@@ -1,5 +1,6 @@
 package lime._internal.backend.native;
 
+import lime.ui.MenuItem;
 import haxe.Timer;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
@@ -21,6 +22,7 @@ import lime.ui.JoystickHatPosition;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
+import lime.ui.Menu;
 import lime.ui.Window;
 
 #if !lime_debug
@@ -39,6 +41,8 @@ import lime.ui.Window;
 @:access(lime.system.Sensor)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
+@:access(lime.ui.Menu)
+@:access(lime.ui.MenuItem)
 @:access(lime.ui.Window)
 class NativeApplication
 {
@@ -49,6 +53,7 @@ class NativeApplication
 	private var gamepadEventInfo = new GamepadEventInfo();
 	private var joystickEventInfo = new JoystickEventInfo();
 	private var keyEventInfo = new KeyEventInfo();
+	private var menuItemEventInfo = new MenuItemEventInfo();
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -62,6 +67,7 @@ class NativeApplication
 	private var pauseTimer:Int;
 	private var parent:Application;
 	private var toggleFullscreen:Bool;
+	private var __defaultMenu:Menu;
 
 	private static function __init__()
 	{
@@ -84,7 +90,14 @@ class NativeApplication
 
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_application_create();
+		Menu.__pendingBackendHandle = NativeCFFI.lime_menu_create_application_default();
+		// keep a reference to the original application menu so that it can
+		// be restored if the application menu is set to null
+		// otherwise, it will be garbage collected
+		__defaultMenu = new Menu();
+		parent.__menu = __defaultMenu;
 		#end
+
 	}
 
 	private function advanceTimer():Void
@@ -117,6 +130,7 @@ class NativeApplication
 		NativeCFFI.lime_text_event_manager_register(handleTextEvent, textEventInfo);
 		NativeCFFI.lime_touch_event_manager_register(handleTouchEvent, touchEventInfo);
 		NativeCFFI.lime_window_event_manager_register(handleWindowEvent, windowEventInfo);
+		NativeCFFI.lime_menu_item_event_manager_register(handleMenuItemEvent, menuItemEventInfo);
 		#if (ios || android || tvos)
 		NativeCFFI.lime_sensor_event_manager_register(handleSensorEvent, sensorEventInfo);
 		#end
@@ -162,6 +176,20 @@ class NativeApplication
 
 		#if (!macro && lime_cffi)
 		NativeCFFI.lime_application_quit(handle);
+		#end
+	}
+
+	public function refreshMenu(menu:Menu):Void {}
+
+	public function setMenu(menu:Menu):Void
+	{
+		#if (!macro && lime_cffi)
+		if (menu == null)
+		{
+			menu = __defaultMenu;
+			parent.__menu = menu;
+		}
+		NativeCFFI.lime_application_set_menu(handle, menu.__backend.handle);
 		#end
 	}
 
@@ -324,6 +352,57 @@ class NativeApplication
 			}
 			#end
 		}
+	}
+
+	private function handleMenuItemEvent():Void
+	{
+		var menuItemID = menuItemEventInfo.menuItemID;
+		var menuItem:MenuItem = null;
+		if (parent.menu != null)
+		{
+			menuItem = findMenuItem(menuItemID, parent.menu);
+		}
+		if (menuItem == null)
+		{
+			for (window in parent.windows)
+			{
+				if (window.menu != null)
+				{
+					menuItem = findMenuItem(menuItemID, window.menu);
+					if (menuItem != null)
+					{
+						break;
+					}
+				}
+			}
+		}
+
+		if (menuItem != null)
+		{
+			menuItem.onSelect.dispatch();
+		}
+	}
+
+	private function findMenuItem(menuItemID:Int, inMenu:Menu):MenuItem
+	{
+		for (menuItem in inMenu.items)
+		{
+			var nativeMenuItem = menuItem.__backend;
+			if (nativeMenuItem.id == menuItemID)
+			{
+				return menuItem;
+			}
+			var submenu = menuItem.submenu;
+			if (submenu != null)
+			{
+				var found = findMenuItem(menuItemID, submenu);
+				if (found != null)
+				{
+					return found;
+				}
+			}
+		}
+		return null;
 	}
 
 	private function handleMouseEvent():Void
@@ -981,4 +1060,28 @@ class NativeApplication
 	var WINDOW_RESTORE = 12;
 	var WINDOW_SHOW = 13;
 	var WINDOW_HIDE = 14;
+}
+
+@:keep /*private*/ class MenuItemEventInfo
+{
+	public var type:MenuItemEventType;
+	public var menuItemID:Int;
+
+	public function new(type:MenuItemEventType = null, menuItemID:Int = 0)
+	{
+		this.type = type;
+		this.menuItemID = menuItemID;
+	}
+
+	public function clone():MenuItemEventInfo
+	{
+		return new MenuItemEventInfo(type, menuItemID);
+	}
+}
+
+#if (haxe_ver >= 4.0) private enum #else @:enum
+
+private #end abstract MenuItemEventType(Int)
+{
+	var MENU_ITEM_SELECT = 0;
 }

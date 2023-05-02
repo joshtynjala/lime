@@ -33,6 +33,7 @@ namespace lime {
 			virtual void Init ();
 			virtual int Quit ();
 			virtual void SetFrameRate (double frameRate);
+			virtual void SetMenu (Menu *menu);
 			virtual bool Update ();
 
 			void RegisterWindow (SDLWindow *window);
@@ -74,6 +75,7 @@ namespace lime {
 			TextEvent textEvent;
 			TouchEvent touchEvent;
 			WindowEvent windowEvent;
+			Menu * menu;
 
 	};
 

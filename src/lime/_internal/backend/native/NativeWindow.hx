@@ -19,6 +19,7 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
 import lime.system.System;
+import lime.ui.Menu;
 import lime.ui.MouseCursor;
 import lime.ui.Window;
 import lime.utils.UInt8Array;
@@ -35,6 +36,7 @@ import lime.utils.UInt8Array;
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
 @:access(lime.system.DisplayMode)
+@:access(lime.ui.Menu)
 @:access(lime.ui.Window)
 class NativeWindow
 {
@@ -459,6 +461,18 @@ class NativeWindow
 			NativeCFFI.lime_window_resize(handle, width, height);
 			#end
 		}
+	}
+
+	public function setMenu(menu:Menu):Void
+	{
+
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_menu(handle, menu != null ? menu.__backend.handle : null);
+			#end
+		}
+
 	}
 
 	public function setMinSize(width:Int, height:Int):Void

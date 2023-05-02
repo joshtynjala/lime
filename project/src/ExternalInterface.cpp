@@ -8,6 +8,7 @@
 
 #include <system/CFFI.h>
 
+#include <SDL.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
 #include <graphics/format/JPEG.h>
@@ -39,6 +40,9 @@
 #include <ui/JoystickEvent.h>
 #include <ui/KeyCode.h>
 #include <ui/KeyEvent.h>
+#include <ui/Menu.h>
+#include <ui/MenuItem.h>
+#include <ui/MenuItemEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
@@ -114,6 +118,38 @@ namespace lime {
 		Font* font = (Font*)handle->ptr;
 		delete font;
 		#endif
+
+	}
+
+
+	void gc_menu (value handle) {
+
+		Menu* menu = (Menu*)val_data (handle);
+		delete menu;
+
+	}
+
+
+	void hl_gc_menu (HL_CFFIPointer* handle) {
+
+		Menu* menu = (Menu*)handle->ptr;
+		delete menu;
+
+	}
+
+
+	void gc_menu_item (value handle) {
+
+		MenuItem* menuItem = (MenuItem*)val_data (handle);
+		delete menuItem;
+
+	}
+
+
+	void hl_gc_menu_item (HL_CFFIPointer* handle) {
+
+		MenuItem* menuItem = (MenuItem*)handle->ptr;
+		delete menuItem;
 
 	}
 
@@ -316,6 +352,38 @@ namespace lime {
 
 		Application* app = (Application*)application->ptr;
 		app->SetFrameRate (frameRate);
+
+	}
+
+
+	void lime_application_set_menu (value application, value menu) {
+
+		Application* app = (Application*)val_data (application);
+
+		Menu* targetMenu = NULL;
+		if (!val_is_null (menu)) {
+
+			targetMenu = (Menu*)val_data (menu);
+
+		}
+
+		app->SetMenu(targetMenu);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_menu) (HL_CFFIPointer* application, HL_CFFIPointer* menu) {
+
+		Application* app = (Application*)application->ptr;
+		Menu* targetMenu = NULL;
+
+		if (menu) {
+
+			targetMenu = (Menu*)menu->ptr;
+
+		}
+
+		app->SetMenu(targetMenu);
 
 	}
 
@@ -2535,6 +2603,385 @@ namespace lime {
 	}
 
 
+	value lime_menu_create () {
+
+		Menu* menu = new Menu();
+		return CFFIPointer (menu, gc_menu);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_menu_create) () {
+
+		Menu* menu = new Menu();
+		return HLCFFIPointer (menu, (hl_finalizer)hl_gc_menu);
+
+	}
+
+
+	void lime_menu_refresh_items (value menu) {
+
+		Menu* targetMenu = (Menu*)val_data (menu);
+		targetMenu->RefreshItems();
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_refresh_items) (HL_CFFIPointer* menu) {
+
+		Menu* targetMenu = (Menu*)menu->ptr;
+		targetMenu->RefreshItems();
+
+	}
+
+
+	value lime_menu_get_items_from_native (value menu) {
+
+		Menu* targetMenu = (Menu*)val_data (menu);
+
+		int len;
+		MenuItem** menuItems = targetMenu->GetItems(len);
+
+		value result = alloc_array (len);
+		for (int i = 0; i < len; i++) {
+
+			MenuItem* menuItem = menuItems[i];
+			value _menuItemValue = CFFIPointer (menuItem, gc_menu_item);
+			val_array_set_i (result, i, _menuItemValue);
+
+		}
+
+		return result;
+
+	}
+
+
+	HL_PRIM hl_varray* HL_NAME(hl_menu_get_items_from_native) (HL_CFFIPointer* menu) {
+
+		Menu* targetMenu = (Menu*)menu->ptr;
+
+		int len;
+		MenuItem** menuItems = targetMenu->GetItems(len);
+
+		hl_varray* result = (hl_varray*)hl_alloc_array (&hlt_bytes, len);
+		HL_CFFIPointer** resultData = hl_aptr (result, HL_CFFIPointer*);
+
+		for (int i = 0; i < len; i++) {
+
+			MenuItem* menuItem = menuItems[i];
+			HL_CFFIPointer* _menuItemValue = HLCFFIPointer (menuItem, (hl_finalizer)hl_gc_menu_item);
+			*resultData++ = _menuItemValue;
+
+		}
+
+		return result;
+
+	}
+
+
+	void lime_menu_set_items (value menu, value items) {
+
+		Menu* targetMenu = (Menu*)val_data (menu);
+
+		int len = val_array_size (items);
+
+		MenuItem** targetMenuItems = new MenuItem*[len];
+
+		for (int i = 0; i < len; i++) {
+
+			value menuItem = val_array_i (items, i);
+			MenuItem* targetMenuItem =  (MenuItem*)val_data (menuItem);
+			targetMenuItems[i] = targetMenuItem;
+
+		}
+
+		targetMenu->SetItems (targetMenuItems, len);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_set_items) (HL_CFFIPointer* menu, hl_varray* items) {
+
+		Menu* targetMenu = (Menu*)menu->ptr;
+
+		int len = items->size;
+		HL_CFFIPointer** itemsData = hl_aptr (items, HL_CFFIPointer*);
+
+		MenuItem** targetMenuItems = new MenuItem*[len];
+
+		for (int i = 0; i < len; i++) {
+
+			MenuItem* targetMenuItem = (MenuItem*)(*itemsData++)->ptr;
+			targetMenuItems[i] = targetMenuItem;
+
+		}
+
+		targetMenu->SetItems (targetMenuItems, len);
+
+	}
+
+
+	value lime_menu_item_create (bool separator) {
+
+		MenuItem* menuItem = new MenuItem(separator);
+
+		return CFFIPointer (menuItem, gc_menu_item);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_menu_item_create) (bool separator) {
+
+		MenuItem* menuItem = new MenuItem(separator);
+
+		return HLCFFIPointer (menuItem, (hl_finalizer)hl_gc_menu_item);
+
+	}
+
+
+	void lime_menu_item_set_id (value menuItem, int id) {
+
+		MenuItem* targetMenuItem = (MenuItem*)val_data (menuItem);
+		targetMenuItem->id = id;
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_item_set_id) (HL_CFFIPointer* menuItem, int id) {
+
+		MenuItem* targetMenuItem = (MenuItem*)menuItem->ptr;
+		targetMenuItem->id = id;
+
+	}
+
+
+	void lime_menu_item_event_manager_register (value callback, value eventObject) {
+
+		MenuItemEvent::callback = new ValuePointer (callback);
+		MenuItemEvent::eventObject = new ValuePointer (eventObject);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_item_event_manager_register) (vclosure* callback, MenuItemEvent* eventObject) {
+
+		MenuItemEvent::callback = new ValuePointer (callback);
+		MenuItemEvent::eventObject = new ValuePointer ((vobj*)eventObject);
+
+	}
+
+
+	bool lime_menu_item_get_separator (value menuItem) {
+
+		MenuItem* targetMenuItem = (MenuItem*)val_data (menuItem);
+		return targetMenuItem->separator;
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_menu_item_get_separator) (HL_CFFIPointer* menuItem) {
+
+		MenuItem* targetMenuItem = (MenuItem*)menuItem->ptr;
+		return targetMenuItem->separator;
+
+	}
+
+
+	value lime_menu_item_get_text (value menuItem) {
+
+		MenuItem* targetMenuItem = (MenuItem*)val_data (menuItem);
+		const char* result = targetMenuItem->text;
+
+		if (result) {
+
+			return alloc_string (result);
+
+		} else {
+
+			return alloc_null ();
+
+		}
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_menu_item_get_text) (HL_CFFIPointer* menuItem) {
+
+		MenuItem* targetMenuItem = (MenuItem*)menuItem->ptr;
+		const char* result = targetMenuItem->text;
+
+		if (result) {
+
+			return (vbyte*)result;
+
+		} else {
+
+			return 0;
+
+		}
+	}
+
+
+	value lime_menu_item_set_text (value menuItem, HxString text) {
+
+		MenuItem* targetMenuItem = (MenuItem*)val_data (menuItem);
+		const char* result = text.c_str ();
+		targetMenuItem->text = SDL_strdup(result);
+
+		if (result) {
+
+			value _result = alloc_string (result);
+
+			if (result != text.c_str ()) {
+
+				free ((char*) result);
+
+			}
+
+			return _result;
+
+		} else {
+
+			return alloc_null ();
+
+		}
+
+	}
+
+
+	HL_PRIM hl_vstring* HL_NAME(hl_menu_item_set_text) (HL_CFFIPointer* menuItem, hl_vstring* text) {
+
+		MenuItem* targetMenuItem = (MenuItem*)menuItem->ptr;
+		const char* result = text ? (char*)hl_to_utf8 ((const uchar*)text->bytes) : NULL;
+		targetMenuItem->text = SDL_strdup(result ? result : "");
+
+		if (result) {
+
+			return text;
+
+		} else {
+
+			return 0;
+
+		}
+
+	}
+
+
+	bool lime_menu_item_get_checked (value menuItem) {
+
+		MenuItem* targetMenuItem = (MenuItem*)val_data (menuItem);
+		return targetMenuItem->checked;
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_menu_item_get_checked) (HL_CFFIPointer* menuItem) {
+
+		MenuItem* targetMenuItem = (MenuItem*)menuItem->ptr;
+		return targetMenuItem->checked;
+
+	}
+
+
+	bool lime_menu_item_set_checked (value menuItem, bool checked) {
+
+		MenuItem* targetMenuItem = (MenuItem*)val_data (menuItem);
+		targetMenuItem->checked = checked;
+		return checked;
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_menu_item_set_checked) (HL_CFFIPointer* menuItem, bool checked) {
+
+		MenuItem* targetMenuItem = (MenuItem*)menuItem->ptr;
+		targetMenuItem->checked = checked;
+		return checked;
+
+	}
+
+
+	value lime_menu_create_application_default () {
+
+		Menu* menu = Menu::CreateAppMenu();
+
+		if (!menu) {
+
+			return alloc_null ();
+
+		}
+
+		return CFFIPointer (menu, gc_menu);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_menu_create_application_default) () {
+
+		Menu* menu = Menu::CreateAppMenu();
+
+		if (!menu) {
+
+			return 0;
+
+		}
+
+		return HLCFFIPointer (menu, (hl_finalizer)hl_gc_menu);
+
+	}
+
+
+	value lime_menu_item_get_submenu_from_native (value menuItem) {
+
+		MenuItem* targetMenuItem = (MenuItem*)val_data (menuItem);
+		Menu* submenu = targetMenuItem->submenu;
+
+		if (!submenu) {
+
+			return alloc_null();
+
+		}
+
+		return CFFIPointer (submenu, gc_menu);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_menu_item_get_submenu_from_native) (HL_CFFIPointer* menuItem) {
+
+		MenuItem* targetMenuItem = (MenuItem*)menuItem->ptr;
+		Menu* submenu = targetMenuItem->submenu;
+
+		if (!submenu) {
+
+			return 0;
+
+		}
+
+		return HLCFFIPointer (submenu, (hl_finalizer)hl_gc_menu);
+
+	}
+
+
+	void lime_menu_item_set_submenu (value menuItem, value submenu) {
+
+		MenuItem* targetMenuItem = (MenuItem*)val_data (menuItem);
+		Menu* targetSubmenu = (Menu*)val_data (submenu);
+		targetMenuItem->submenu = targetSubmenu;
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_item_set_submenu) (HL_CFFIPointer* menuItem, HL_CFFIPointer* submenu) {
+
+		MenuItem* targetMenuItem = (MenuItem*)menuItem->ptr;
+		Menu* targetSubmenu = (Menu*)submenu->ptr;
+		targetMenuItem->submenu = targetSubmenu;
+
+	}
+
+
 	void lime_mouse_event_manager_register (value callback, value eventObject) {
 
 		MouseEvent::callback = new ValuePointer (callback);
@@ -3552,6 +3999,24 @@ namespace lime {
 	}
 
 
+	void lime_window_set_menu (value window, value menu) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		Menu* targetMenu = (Menu*)val_data (menu);
+		targetWindow->SetWindowMenu (targetMenu);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_menu) (HL_CFFIPointer* window, HL_CFFIPointer* menu) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		Menu* targetMenu = (Menu*)menu->ptr;
+		targetWindow->SetWindowMenu (targetMenu);
+
+	}
+
+
 	void lime_window_set_minimum_size (value window, int width, int height) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3921,6 +4386,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_application_init);
 	DEFINE_PRIME1 (lime_application_quit);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
+	DEFINE_PRIME2v (lime_application_set_menu);
 	DEFINE_PRIME1 (lime_application_update);
 	DEFINE_PRIME2 (lime_audio_load);
 	DEFINE_PRIME2 (lime_audio_load_bytes);
@@ -4004,6 +4470,21 @@ namespace lime {
 	DEFINE_PRIME0 (lime_locale_get_system_locale);
 	DEFINE_PRIME2 (lime_lzma_compress);
 	DEFINE_PRIME2 (lime_lzma_decompress);
+	DEFINE_PRIME0 (lime_menu_create_application_default);
+	DEFINE_PRIME0 (lime_menu_create);
+	DEFINE_PRIME1v (lime_menu_refresh_items);
+	DEFINE_PRIME1 (lime_menu_get_items_from_native);
+	DEFINE_PRIME2v (lime_menu_set_items);
+	DEFINE_PRIME1 (lime_menu_item_create);
+	DEFINE_PRIME2v (lime_menu_item_set_id);
+	DEFINE_PRIME2v (lime_menu_item_event_manager_register);
+	DEFINE_PRIME1 (lime_menu_item_get_separator);
+	DEFINE_PRIME1 (lime_menu_item_get_text);
+	DEFINE_PRIME2 (lime_menu_item_set_text);
+	DEFINE_PRIME1 (lime_menu_item_get_checked);
+	DEFINE_PRIME2 (lime_menu_item_set_checked);
+	DEFINE_PRIME1 (lime_menu_item_get_submenu_from_native);
+	DEFINE_PRIME2v (lime_menu_item_set_submenu);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_PRIME3 (lime_png_decode_bytes);
@@ -4059,6 +4540,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_set_display_mode);
 	DEFINE_PRIME2 (lime_window_set_fullscreen);
 	DEFINE_PRIME2v (lime_window_set_icon);
+	DEFINE_PRIME2v (lime_window_set_menu);
 	DEFINE_PRIME2 (lime_window_set_maximized);
 	DEFINE_PRIME2 (lime_window_set_minimized);
 	DEFINE_PRIME2v (lime_window_set_mouse_lock);
@@ -4085,6 +4567,7 @@ namespace lime {
 	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64)
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
 	#define _TKEY_EVENT _OBJ (_F64 _I32 _I32 _I32)
+	#define _TMENU_ITEM_EVENT _OBJ (_I32 _I32)
 	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32)
 	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define _TRENDER_EVENT _OBJ (_I32)
@@ -4111,6 +4594,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_application_init, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_application_quit, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_frame_rate, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_menu, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_application_update, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, hl_audio_load_bytes, _TBYTES _TAUDIOBUFFER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, hl_audio_load_file, _STRING _TAUDIOBUFFER);
@@ -4193,6 +4677,21 @@ namespace lime {
 	DEFINE_HL_PRIM (_BYTES, hl_locale_get_system_locale, _NO_ARG);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_decompress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_menu_create_application_default, _NO_ARG);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_menu_create, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_menu_refresh_items, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_ARR, hl_menu_get_items_from_native, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_menu_set_items, _TCFFIPOINTER _ARR);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_menu_item_create, _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_menu_item_set_id, _TCFFIPOINTER _I32)
+	DEFINE_HL_PRIM (_VOID, hl_menu_item_event_manager_register, _FUN (_VOID, _NO_ARG) _TMENU_ITEM_EVENT)
+	DEFINE_HL_PRIM (_BOOL, hl_menu_item_get_separator, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, hl_menu_item_get_text, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_STRING, hl_menu_item_set_text, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_menu_item_get_checked, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_menu_item_set_checked, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_menu_item_get_submenu_from_native, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_menu_item_set_submenu, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
 	// DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_png_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
@@ -4248,6 +4747,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE _TDISPLAYMODE);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_fullscreen, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_icon, _TCFFIPOINTER _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_menu, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_maximized, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_minimized, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_lock, _TCFFIPOINTER _BOOL);
