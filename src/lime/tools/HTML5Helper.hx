@@ -91,6 +91,22 @@ class HTML5Helper
 		{
 			System.openURL(project.app.url);
 		}
+		else if (project.targetFlags.exists("snake"))
+		{
+			launchSnakeServer(project, path, port);
+		}
+		else
+		{
+			launchNodeHttpServer(project, path, port);
+		}
+	}
+
+	private static function launchNodeHttpServer(project:HXProject, path:String, port:Int = 0):Void
+	{
+		if (project.app.url != null && project.app.url != "")
+		{
+			System.openURL(project.app.url);
+		}
 		else
 		{
 			var suffix = switch (System.hostPlatform)
@@ -162,6 +178,45 @@ class HTML5Helper
 
 			System.runCommand("", node, args);
 		}
+	}
+
+
+
+	private static function launchSnakeServer(project:HXProject, path:String, port:Int = 0):Void
+	{
+		var snake = System.findTemplate(project.templatePaths, "bin/snake.n");
+
+		var args = [snake, "--directory", path, "--no-cache", "--cors"];
+
+		if (project.targetFlags.exists("port"))
+		{
+			port = Std.parseInt(project.targetFlags.get("port"));
+		}
+
+		if (port != 0)
+		{
+			args.push("--port");
+			args.push(Std.string(port));
+			Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
+		}
+		else
+		{
+			args.push("--port");
+			args.push("3000");
+			Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:[3000*]");
+		}
+
+		if (!project.targetFlags.exists("nolaunch"))
+		{
+			args.push("--open-browser");
+		}
+
+		if (!Log.verbose)
+		{
+			args.push("--silent");
+		}
+
+		System.runCommand("", "neko", args);
 	}
 
 	public static function minify(project:HXProject, sourceFile:String):Bool
