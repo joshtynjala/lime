@@ -39,10 +39,10 @@
 #include <SDL.h>
 #include <string>
 
-#ifdef HX_WINDOWS
 #include <locale>
 #include <codecvt>
-#endif
+
+using wstring_convert = std::wstring_convert<std::codecvt_utf8<wchar_t>>;
 
 
 namespace lime {
@@ -114,12 +114,8 @@ namespace lime {
 
 				if (path != nullptr) {
 
-					#ifdef HX_WINDOWS
-					std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+					wstring_convert converter;
 					result = new std::wstring (converter.from_bytes(path));
-					#else
-					result = new std::wstring (path, path + strlen (path));
-					#endif
 					SDL_free (path);
 
 				}
@@ -133,13 +129,11 @@ namespace lime {
 				char* path = SDL_GetPrefPath (company, title);
 
 				if (path != nullptr) {
-					#ifdef HX_WINDOWS
-					std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+        			wstring_convert converter;
 					result = new std::wstring (converter.from_bytes(path));
-					#else
-					result = new std::wstring (path, path + strlen (path));
-					#endif
 					SDL_free (path);
+
 				}
 
 				break;
@@ -170,9 +164,14 @@ namespace lime {
 				if (home != NULL) {
 
 					std::string path = std::string (home) + std::string ("/Desktop");
-					result = new std::wstring (path.begin (), path.end ());
+					wstring_convert converter;
+					result = new std::wstring (converter.from_bytes(path));
 
 				}
+
+				std::string path = std::string (home) + std::string ("/Desktop");
+				wstring_convert converter;
+				result = new std::wstring (converter.from_bytes(path));
 
 				#endif
 				break;
@@ -207,7 +206,8 @@ namespace lime {
 				if (home != NULL) {
 
 					std::string path = std::string (home) + std::string ("/Documents");
-					result = new std::wstring (path.begin (), path.end ());
+					wstring_convert converter;
+					result = new std::wstring (converter.from_bytes(path));
 
 				}
 
@@ -281,7 +281,8 @@ namespace lime {
 				if (home != NULL) {
 
 					std::string path = std::string (home);
-					result = new std::wstring (path.begin (), path.end ());
+					wstring_convert converter;
+					result = new std::wstring (converter.from_bytes(path));
 
 				}
 
