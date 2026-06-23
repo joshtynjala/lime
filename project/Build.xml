@@ -342,6 +342,9 @@
 			<file name="src/backend/sdl3/SDLKeyCode.cpp" />
 			<file name="src/backend/sdl3/SDLMutex.cpp" />
 			<file name="src/backend/sdl3/SDLSystem.cpp" />
+			<file name="src/backend/sdl3/SDLTrayIcon.cpp" />
+			<file name="src/backend/sdl3/SDLTrayMenu.cpp" />
+			<file name="src/backend/sdl3/SDLTrayEntry.cpp" />
 			<file name="src/backend/sdl3/SDLWindow.cpp" />
 			<file name="src/graphics/vulkan/VKRenderer.cpp" if="LIME_VULKAN" />
 
@@ -427,6 +430,7 @@
 		<file name="src/ui/MouseEvent.cpp" />
 		<file name="src/ui/TextEvent.cpp" />
 		<file name="src/ui/TouchEvent.cpp" />
+		<file name="src/ui/TrayIconEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ArrayBufferView.cpp" />
 		<file name="src/utils/Bytes.cpp" />

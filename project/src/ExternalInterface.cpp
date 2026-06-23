@@ -46,6 +46,10 @@
 #include <ui/MouseEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
+#include <ui/TrayEntry.h>
+#include <ui/TrayIcon.h>
+#include <ui/TrayIconEvent.h>
+#include <ui/TrayMenu.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
 #include <utils/compress/LZMA.h>
@@ -1306,6 +1310,54 @@ namespace lime {
 
 		Window* window = (Window*)handle->ptr;
 		delete window;
+
+	}
+
+
+	void gc_trayicon (value handle) {
+
+		TrayIcon* trayIcon = (TrayIcon*)val_data (handle);
+		delete trayIcon;
+
+	}
+
+
+	void hl_gc_trayicon (HL_CFFIPointer* handle) {
+
+		TrayIcon* trayIcon = (TrayIcon*)handle->ptr;
+		delete trayIcon;
+
+	}
+
+
+	void gc_trayicon_menu (value handle) {
+
+		TrayMenu* trayMenu = (TrayMenu*)val_data (handle);
+		delete trayMenu;
+
+	}
+
+
+	void hl_gc_trayicon_menu (HL_CFFIPointer* handle) {
+
+		TrayMenu* trayMenu = (TrayMenu*)handle->ptr;
+		delete trayMenu;
+
+	}
+
+
+	void gc_trayicon_entry (value handle) {
+
+		TrayEntry* trayEntry = (TrayEntry*)val_data (handle);
+		delete trayEntry;
+
+	}
+
+
+	void hl_gc_trayicon_entry (HL_CFFIPointer* handle) {
+
+		TrayEntry* trayEntry = (TrayEntry*)handle->ptr;
+		delete trayEntry;
 
 	}
 
@@ -13267,6 +13319,376 @@ namespace lime {
 	}
 
 
+	value lime_trayicon_create (value buffer, HxString tooltip) {
+
+		#ifdef LIME_SDL3
+
+		ImageBuffer* imageBuffer = NULL;
+
+		if (!val_is_null(buffer)) {
+
+			imageBuffer = new ImageBuffer(buffer);
+
+		}
+
+		TrayIcon* trayIcon = CreateTrayIcon (imageBuffer, hxs_utf8 (tooltip, nullptr));
+
+		return CFFIPointer (trayIcon, gc_trayicon);
+
+		#else
+
+		return alloc_null ();
+
+		#endif
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_trayicon_create) (ImageBuffer* buffer, hl_vstring* tooltip) {
+
+		#ifdef LIME_SDL3
+
+		TrayIcon* trayIcon = CreateTrayIcon (buffer, (const char*)hl_to_utf8 ((const uchar*)tooltip->bytes));
+		return HLCFFIPointer (trayIcon, (hl_finalizer)hl_gc_trayicon);
+
+		#else
+
+		return 0;
+
+		#endif
+
+	}
+
+
+	void lime_trayicon_event_manager_register (value callback, value eventObject) {
+
+		#ifdef LIME_SDL3
+
+		TrayIconEvent::callback = new ValuePointer (callback);
+		TrayIconEvent::eventObject = new ValuePointer (eventObject);
+
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_trayicon_event_manager_register) (vclosure* callback, TrayIconEvent* eventObject) {
+
+		#ifdef LIME_SDL3
+
+		TrayIconEvent::callback = new ValuePointer (callback);
+		TrayIconEvent::eventObject = new ValuePointer ((vobj*)eventObject);
+
+		#endif
+
+	}
+
+
+	void lime_trayicon_remove (value trayIcon) {
+
+		#ifdef LIME_SDL3
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+		targetTrayIcon->Remove();
+
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_trayicon_remove) (HL_CFFIPointer* trayIcon) {
+
+		#ifdef LIME_SDL3
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		targetTrayIcon->Remove();
+
+		#endif
+
+	}
+
+
+	void lime_trayicon_set_icon (value trayIcon, value buffer) {
+
+		#ifdef LIME_SDL3
+
+		ImageBuffer* imageBuffer = NULL;
+
+		if (!val_is_null(buffer)) {
+
+			imageBuffer = new ImageBuffer(buffer);
+
+		}
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+		targetTrayIcon->SetIcon(imageBuffer);
+
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_trayicon_set_icon) (HL_CFFIPointer* trayIcon, ImageBuffer* buffer) {
+
+		#ifdef LIME_SDL3
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		targetTrayIcon->SetIcon(buffer);
+
+		#endif
+
+	}
+
+
+	void lime_trayicon_set_tooltip (value trayIcon, HxString tooltip) {
+
+		#ifdef LIME_SDL3
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+		targetTrayIcon->SetTooltip(hxs_utf8 (tooltip, nullptr));
+
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_trayicon_set_tooltip) (HL_CFFIPointer* trayIcon, hl_vstring* tooltip) {
+
+		#ifdef LIME_SDL3
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		targetTrayIcon->SetTooltip((const char*)hl_to_utf8 ((const uchar*)tooltip->bytes));
+
+		#endif
+
+	}
+
+
+	value lime_trayicon_create_menu (value trayIcon) {
+
+		#ifdef LIME_SDL3
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+		TrayMenu* trayMenu = targetTrayIcon->CreateMenu();
+
+		return CFFIPointer (trayMenu, gc_trayicon_menu);
+
+		#else
+
+		return alloc_null ();
+
+		#endif
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_trayicon_create_menu) (HL_CFFIPointer* trayIcon) {
+
+		#ifdef LIME_SDL3
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		TrayMenu* trayMenu = targetTrayIcon->CreateMenu();
+		return HLCFFIPointer (trayMenu, (hl_finalizer)hl_gc_trayicon_menu);
+
+		#else
+
+		return 0;
+
+		#endif
+
+	}
+
+
+	value lime_trayicon_create_entry (value trayMenu, HxString label, int type, int index) {
+
+		#ifdef LIME_SDL3
+
+		TrayMenu* targetTrayMenu = (TrayMenu*)val_data (trayMenu);
+		TrayEntry* trayEntry = targetTrayMenu->InsertEntryAt(hxs_utf8 (label, nullptr), type, index);
+
+		return CFFIPointer (trayEntry, gc_trayicon_entry);
+
+		#else
+
+		return alloc_null ();
+
+		#endif
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_trayicon_create_entry) (HL_CFFIPointer* trayMenu, hl_vstring * label, int type, int index) {
+
+		#ifdef LIME_SDL3
+
+		TrayMenu* targetTrayMenu = (TrayMenu*)trayMenu->ptr;
+		TrayEntry* trayEntry = targetTrayMenu->InsertEntryAt(label ? hl_to_utf8 ((const uchar*)label->bytes) : NULL, type, index);
+		return HLCFFIPointer (trayEntry, (hl_finalizer)hl_gc_trayicon_entry);
+
+		#else
+
+		return 0;
+
+		#endif
+
+	}
+
+
+	void lime_trayicon_remove_entry (value trayEntry) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)val_data (trayEntry);
+		targetTrayEntry->Remove();
+
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_trayicon_remove_entry) (HL_CFFIPointer* trayEntry) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)trayEntry->ptr;
+		targetTrayEntry->Remove();
+
+		#endif
+
+	}
+
+
+	void lime_trayicon_set_entry_label (value trayEntry, HxString label) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)val_data (trayEntry);
+		targetTrayEntry->SetLabel(hxs_utf8 (label, nullptr));
+
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_trayicon_set_entry_label) (HL_CFFIPointer* trayEntry, hl_vstring* label) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)trayEntry->ptr;
+		targetTrayEntry->SetLabel((const char*)hl_to_utf8 ((const uchar*)label->bytes));
+
+		#endif
+
+	}
+
+
+	void lime_trayicon_set_entry_checked (value trayEntry, bool checked) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)val_data (trayEntry);
+		targetTrayEntry->SetChecked(checked);
+
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_trayicon_set_entry_checked) (HL_CFFIPointer* trayEntry, bool checked) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)trayEntry->ptr;
+		targetTrayEntry->SetChecked(checked);
+
+		#endif
+
+	}
+
+
+	void lime_trayicon_set_entry_enabled (value trayEntry, bool enabled) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)val_data (trayEntry);
+		targetTrayEntry->SetEnabled(enabled);
+
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_trayicon_set_entry_enabled) (HL_CFFIPointer* trayEntry, bool enabled) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)trayEntry->ptr;
+		targetTrayEntry->SetEnabled(enabled);
+
+		#endif
+
+	}
+
+
+	void lime_trayicon_set_entry_callback (value trayEntry, value callback) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)val_data (trayEntry);
+		targetTrayEntry->SetCallback(new ValuePointer(callback));
+
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_trayicon_set_entry_callback) (HL_CFFIPointer* trayEntry, vclosure* callback) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)trayEntry->ptr;
+		targetTrayEntry->SetCallback(new ValuePointer(callback));
+
+		#endif
+
+	}
+
+
+	value lime_trayicon_create_entry_submenu (value trayEntry) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)val_data (trayEntry);
+		TrayMenu* trayMenu = targetTrayEntry->CreateSubMenu();
+
+		return CFFIPointer (trayMenu, gc_trayicon_menu);
+
+		#else
+
+		return alloc_null ();
+
+		#endif
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_trayicon_create_entry_submenu) (HL_CFFIPointer* trayEntry) {
+
+		#ifdef LIME_SDL3
+
+		TrayEntry* targetTrayEntry = (TrayEntry*)trayEntry->ptr;
+		TrayMenu* trayMenu = targetTrayEntry->CreateSubMenu();
+		return HLCFFIPointer (trayMenu, (hl_finalizer)hl_gc_trayicon_menu);
+
+		#else
+
+		return 0;
+
+		#endif
+
+	}
+
+
 	value lime_zlib_compress (value buffer, value bytes) {
 
 		#ifdef LIME_ZLIB
@@ -13596,6 +14018,19 @@ namespace lime {
 	DEFINE_PRIME3v (lime_window_warp_mouse);
 	DEFINE_PRIME1 (lime_window_get_opacity);
 	DEFINE_PRIME2v (lime_window_set_opacity);
+	DEFINE_PRIME2 (lime_trayicon_create);
+	DEFINE_PRIME2v (lime_trayicon_event_manager_register);
+	DEFINE_PRIME1v (lime_trayicon_remove);
+	DEFINE_PRIME2v (lime_trayicon_set_icon);
+	DEFINE_PRIME2v (lime_trayicon_set_tooltip);
+	DEFINE_PRIME1 (lime_trayicon_create_menu);
+	DEFINE_PRIME4 (lime_trayicon_create_entry);
+	DEFINE_PRIME1v (lime_trayicon_remove_entry);
+	DEFINE_PRIME2v (lime_trayicon_set_entry_label);
+	DEFINE_PRIME2v (lime_trayicon_set_entry_checked);
+	DEFINE_PRIME2v (lime_trayicon_set_entry_enabled);
+	DEFINE_PRIME2v (lime_trayicon_set_entry_callback);
+	DEFINE_PRIME1 (lime_trayicon_create_entry_submenu);
 	DEFINE_PRIME2 (lime_zlib_compress);
 	DEFINE_PRIME2 (lime_zlib_decompress);
 
@@ -13618,6 +14053,7 @@ namespace lime {
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
 	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _BYTES _I32 _I32)
 	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
+	#define _TTRAYICON_EVENT _OBJ (_I32 _I32)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 	#define _TVORBISFILE _OBJ (_I32 _DYN)
 	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
@@ -13904,6 +14340,19 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_trayicon_create, _TIMAGEBUFFER _STRING);
+	DEFINE_HL_PRIM (_VOID, hl_trayicon_event_manager_register, _FUN (_VOID, _NO_ARG) _TTRAYICON_EVENT);
+	DEFINE_HL_PRIM (_VOID, hl_trayicon_remove, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_trayicon_set_icon, _TCFFIPOINTER _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_VOID, hl_trayicon_set_tooltip, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_trayicon_create_menu, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_trayicon_create_entry, _TCFFIPOINTER _STRING _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_trayicon_set_entry_label, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_VOID, hl_trayicon_set_entry_checked, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_trayicon_set_entry_enabled, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_trayicon_set_entry_callback, _TCFFIPOINTER _FUN (_VOID, _NO_ARG));
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_trayicon_create_entry_submenu, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_trayicon_remove_entry, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_decompress, _TBYTES _TBYTES);
 

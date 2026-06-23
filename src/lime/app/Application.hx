@@ -13,6 +13,8 @@ import lime.ui.KeyModifier;
 import lime.ui.MouseButton;
 import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
+import lime.ui.TrayIcon;
+import lime.ui.TrayIconAttributes;
 import lime.ui.Window;
 import lime.ui.WindowAttributes;
 import lime.utils.Preloader;
@@ -27,6 +29,7 @@ import lime.utils.Preloader;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.ui.TrayIcon)
 @:access(lime.ui.Window)
 class Application extends Module
 {
@@ -120,6 +123,7 @@ class Application extends Module
 	@:noCompletion private var __window:Window;
 	@:noCompletion private var __windowByID:Map<Int, Window>;
 	@:noCompletion private var __windows:Array<Window>;
+	@:noCompletion private var __trayIcons:Array<TrayIcon>;
 
 	private static function __init__()
 	{
@@ -163,6 +167,7 @@ class Application extends Module
 		__frameProfile = FrameProfile.Balanced;
 		__windowByID = new Map();
 		__windows = new Array();
+		__trayIcons = new Array();
 		__vsyncMode = VSyncMode.Off;
 
 		__backend = new ApplicationBackend(this);
@@ -195,6 +200,22 @@ class Application extends Module
 		var window = __createWindow(attributes);
 		__addWindow(window);
 		return window;
+	}
+
+	/**
+		Creates a new TrayIcon
+		@param	attributes	A set of parameters to initialize the tray icon
+	**/
+	public function createTrayIcon(attributes:TrayIconAttributes):TrayIcon
+	{
+		var trayIcon = new TrayIcon(this, attributes);
+		if (trayIcon.id == -1)
+		{
+			return null;
+		}
+
+		__trayIcons.push(trayIcon);
+		return trayIcon;
 	}
 
 	/**

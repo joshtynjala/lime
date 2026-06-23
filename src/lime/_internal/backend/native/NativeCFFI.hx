@@ -708,6 +708,30 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
+	@:cffi private static function lime_trayicon_create(buffer:Dynamic, tooltip:String):Dynamic;
+
+	@:cffi private static function lime_trayicon_remove(trayIcon:Dynamic):Void;
+
+	@:cffi private static function lime_trayicon_set_icon(trayIcon:Dynamic, buffer:Dynamic):Void;
+
+	@:cffi private static function lime_trayicon_set_tooltip(trayIcon:Dynamic, tooltip:String):Void;
+
+	@:cffi private static function lime_trayicon_create_menu(trayIcon:Dynamic):Dynamic;
+
+	@:cffi private static function lime_trayicon_create_entry(trayMenu:Dynamic, label:String, type:Int, index:Int):Dynamic;
+
+	@:cffi private static function lime_trayicon_remove_entry(trayEntry:Dynamic):Void
+
+	@:cffi private static function lime_trayicon_set_entry_label(trayEntry:Dynamic, label:String):Void;
+
+	@:cffi private static function lime_trayicon_set_entry_checked(trayEntry:Dynamic, checked:Bool):Void;
+
+	@:cffi private static function lime_trayicon_set_entry_enabled(trayEntry:Dynamic, enabled:Bool):Void;
+
+	@:cffi private static function lime_trayicon_set_entry_callback(trayEntry:Dynamic, callback:Dynamic):Void;
+
+	@:cffi private static function lime_trayicon_create_entry_submenu(trayEntry:Dynamic):Dynamic;
+
 	@:cffi private static function lime_zlib_compress(data:Dynamic, bytes:Dynamic):Dynamic;
 
 	@:cffi private static function lime_zlib_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
@@ -1220,6 +1244,30 @@ class NativeCFFI
 		"oiiv", false));
 	private static var lime_window_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_window_event_manager_register", "oov", false));
+	private static var lime_trayicon_create = new cpp.Callable<cpp.Object->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_trayicon_create",
+		"oso", false));
+	private static var lime_trayicon_remove = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_trayicon_remove",
+		"ov", false));
+	private static var lime_trayicon_set_icon = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_trayicon_set_icon",
+		"oov", false));
+	private static var lime_trayicon_set_tooltip = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_trayicon_set_tooltip",
+		"osv", false));
+	private static var lime_trayicon_create_menu = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_trayicon_create_menu",
+		"oo", false));
+	private static var lime_trayicon_create_entry = new cpp.Callable<cpp.Object->String->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_trayicon_create_entry",
+		"osiio", false));
+	private static var lime_trayicon_remove_entry = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_trayicon_remove_entry",
+		"ov", false));
+	private static var lime_trayicon_set_entry_label = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_trayicon_set_entry_label",
+		"osv", false));
+	private static var lime_trayicon_set_entry_checked = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_trayicon_set_entry_checked",
+		"obv", false));
+	private static var lime_trayicon_set_entry_enabled = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_trayicon_set_entry_enabled",
+		"obv", false));
+	private static var lime_trayicon_set_entry_callback = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_trayicon_set_entry_callback",
+		"oov", false));
+	private static var lime_trayicon_create_entry_submenu = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_trayicon_create_entry_submenu",
+		"oo", false));
 	private static var lime_zlib_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_compress", "ooo",
 		false));
 	private static var lime_zlib_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_decompress", "ooo",
@@ -1507,6 +1555,18 @@ class NativeCFFI
 	private static var lime_window_set_always_on_top = CFFI.load("lime", "lime_window_set_always_on_top", 2);
 	private static var lime_window_warp_mouse = CFFI.load("lime", "lime_window_warp_mouse", 3);
 	private static var lime_window_event_manager_register = CFFI.load("lime", "lime_window_event_manager_register", 2);
+	private static var lime_trayicon_create = CFFI.load("lime", "lime_trayicon_create", 2);
+	private static var lime_trayicon_remove = CFFI.load("lime", "lime_trayicon_remove", 1);
+	private static var lime_trayicon_set_icon = CFFI.load("lime", "lime_trayicon_set_icon", 2);
+	private static var lime_trayicon_set_tooltip = CFFI.load("lime", "lime_trayicon_set_tooltip", 2);
+	private static var lime_trayicon_create_menu = CFFI.load("lime", "lime_trayicon_create_menu", 1);
+	private static var lime_trayicon_create_entry = CFFI.load("lime", "lime_trayicon_create_entry", 4);
+	private static var lime_trayicon_remove_entry = CFFI.load("lime", "lime_trayicon_remove_entry", 1);
+	private static var lime_trayicon_set_entry_label = CFFI.load("lime", "lime_trayicon_set_entry_label", 2);
+	private static var lime_trayicon_set_entry_checked = CFFI.load("lime", "lime_trayicon_set_entry_checked", 2);
+	private static var lime_trayicon_set_entry_enabled = CFFI.load("lime", "lime_trayicon_set_entry_enabled", 2);
+	private static var lime_trayicon_set_entry_callback = CFFI.load("lime", "lime_trayicon_set_entry_callback", 2);
+	private static var lime_trayicon_create_entry_submenu = CFFI.load("lime", "lime_trayicon_create_entry_submenu", 1);
 	private static var lime_zlib_compress = CFFI.load("lime", "lime_zlib_compress", 2);
 	private static var lime_zlib_decompress = CFFI.load("lime", "lime_zlib_decompress", 2);
 	#end
@@ -2804,6 +2864,42 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_window_event_manager_register") private static function lime_window_event_manager_register(callback:Void->Void,
 		eventObject:WindowEventInfo):Void {}
+
+	@:hlNative("lime", "hl_trayicon_create") private static function lime_trayicon_create(buffer:ImageBuffer, tooltip:String):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_trayicon_remove") private static function lime_trayicon_remove(handle:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_trayicon_set_icon") private static function lime_trayicon_set_icon(handle:CFFIPointer, buffer:ImageBuffer):Void {}
+
+	@:hlNative("lime", "hl_trayicon_set_tooltip") private static function lime_trayicon_set_tooltip(handle:CFFIPointer, tooltip:String):Void {}
+
+	@:hlNative("lime", "hl_trayicon_create_menu") private static function lime_trayicon_create_menu(handle:CFFIPointer):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_trayicon_create_entry") private static function lime_trayicon_create_entry(handle:CFFIPointer, label:String, type:Int, index:Int):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_trayicon_remove_entry") private static function lime_trayicon_remove_entry(handle:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_trayicon_set_entry_label") private static function lime_trayicon_set_entry_label(handle:CFFIPointer, label:String):Void {}
+
+	@:hlNative("lime", "hl_trayicon_set_entry_checked") private static function lime_trayicon_set_entry_checked(handle:CFFIPointer, checked:Bool):Void {}
+
+	@:hlNative("lime", "hl_trayicon_set_entry_enabled") private static function lime_trayicon_set_entry_enabled(handle:CFFIPointer, enabled:Bool):Void {}
+
+	@:hlNative("lime", "hl_trayicon_set_entry_callback") private static function lime_trayicon_set_entry_callback(handle:CFFIPointer, callback:Void->Void):Void {}
+
+	@:hlNative("lime", "hl_trayicon_create_entry_submenu") private static function lime_trayicon_create_entry_submenu(handle:CFFIPointer):CFFIPointer
+	{
+		return null;
+	}
 
 	@:hlNative("lime", "hl_zlib_compress") private static function lime_zlib_compress(data:Bytes, bytes:Bytes):Bytes
 	{
