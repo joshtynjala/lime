@@ -659,6 +659,9 @@ class NativeApplication
 					window.onHide.dispatch();
 
 				case WINDOW_DISPLAY_CHANGE:
+					#if (lime_cffi && !macro)
+					window.__scale = NativeCFFI.lime_window_get_scale(window.__backend.handle);
+					#end
 					window.onDisplayChange.dispatch();
 			}
 		}
