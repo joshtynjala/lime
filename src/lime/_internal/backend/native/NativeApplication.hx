@@ -657,6 +657,9 @@ class NativeApplication
 					window.onShow.dispatch();
 				case WINDOW_HIDE:
 					window.onHide.dispatch();
+
+				case WINDOW_DISPLAY_CHANGE:
+					window.onDisplayChange.dispatch();
 			}
 		}
 	}
@@ -1071,6 +1074,7 @@ class NativeApplication
 	var WINDOW_RESTORE = 12;
 	var WINDOW_SHOW = 13;
 	var WINDOW_HIDE = 14;
+	var WINDOW_DISPLAY_CHANGE = 15;
 }
 
 @:keep /*private*/ class OrientationEventInfo

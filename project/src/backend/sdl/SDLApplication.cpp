@@ -651,6 +651,7 @@ namespace lime
 			case SDL_WINDOWEVENT_MINIMIZED:
 			case SDL_WINDOWEVENT_MOVED:
 			case SDL_WINDOWEVENT_RESTORED:
+			case SDL_WINDOWEVENT_DISPLAY_CHANGED:
 
 				ProcessWindowEvent(event);
 				break;
@@ -1263,6 +1264,10 @@ namespace lime
 
 			case SDL_WINDOWEVENT_RESTORED:
 				windowEvent.type = WINDOW_RESTORE;
+				break;
+
+			case SDL_WINDOWEVENT_DISPLAY_CHANGED:
+				windowEvent.type = WINDOW_DISPLAY_CHANGE;
 				break;
 			}
 
